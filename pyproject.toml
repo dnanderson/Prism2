@@ -1,0 +1,15 @@
+[project]
+name = "prism2"
+version = "0.1.0"
+description = "A user interface for interacting with a device under test via NI-845x."
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "customtkinter>=5.2.2",
+]
+
+[project.optional-dependencies]
+test = [
+    "pytest>=8.0.0",
+    "pytest-mock>=3.12.0",
+]

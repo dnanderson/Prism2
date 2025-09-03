@@ -20,6 +20,8 @@ import sys
 # For simplicity, we assume 'ni845x.dll'. This might need adjustment
 # based on the actual DLL name and location on the system.
 _dll_name = 'ni845x.dll'
+_dll_loaded = False
+ni845x_dll = None
 
 try:
     # Use WinDLL for stdcall functions on Windows
@@ -32,11 +34,11 @@ try:
     else:
         # For other systems like Linux or macOS, use CDLL
         ni845x_dll = ctypes.CDLL(_dll_name)
+    _dll_loaded = True
 except OSError as e:
-    print(f"Error: Failed to load the ni845x library: {_dll_name}")
-    print(f"Original error: {e}")
-    print("Please ensure the NI-845x driver is installed and the DLL is in the system's PATH.")
-    sys.exit(1)
+    print(f"Warning: Failed to load the ni845x library: {_dll_name}")
+    print(f"         This is expected if the NI-845x driver is not installed.")
+    print(f"         Application will run in a simulated mode without hardware access.")
 
 
 # ==============================================================================
@@ -137,80 +139,81 @@ def _check_error(status_code, func_name):
 # Function Prototypes (argtypes and restype)
 # ==============================================================================
 
-# Device Functions
-ni845x_dll.ni845xFindDevice.argtypes = [pchar, pNiHandle, puInt32]
-ni845x_dll.ni845xFindDevice.restype = int32
+if _dll_loaded:
+    # Device Functions
+    ni845x_dll.ni845xFindDevice.argtypes = [pchar, pNiHandle, puInt32]
+    ni845x_dll.ni845xFindDevice.restype = int32
 
-ni845x_dll.ni845xFindDeviceNext.argtypes = [NiHandle, pchar]
-ni845x_dll.ni845xFindDeviceNext.restype = int32
+    ni845x_dll.ni845xFindDeviceNext.argtypes = [NiHandle, pchar]
+    ni845x_dll.ni845xFindDeviceNext.restype = int32
 
-ni845x_dll.ni845xCloseFindDeviceHandle.argtypes = [NiHandle]
-ni845x_dll.ni845xCloseFindDeviceHandle.restype = int32
+    ni845x_dll.ni845xCloseFindDeviceHandle.argtypes = [NiHandle]
+    ni845x_dll.ni845xCloseFindDeviceHandle.restype = int32
 
-ni845x_dll.ni845xOpen.argtypes = [pchar, pNiHandle]
-ni845x_dll.ni845xOpen.restype = int32
+    ni845x_dll.ni845xOpen.argtypes = [pchar, pNiHandle]
+    ni845x_dll.ni845xOpen.restype = int32
 
-ni845x_dll.ni845xClose.argtypes = [NiHandle]
-ni845x_dll.ni845xClose.restype = int32
+    ni845x_dll.ni845xClose.argtypes = [NiHandle]
+    ni845x_dll.ni845xClose.restype = int32
 
-ni845x_dll.ni845xSetTimeout.argtypes = [NiHandle, uInt32]
-ni845x_dll.ni845xSetTimeout.restype = int32
+    ni845x_dll.ni845xSetTimeout.argtypes = [NiHandle, uInt32]
+    ni845x_dll.ni845xSetTimeout.restype = int32
 
-ni845x_dll.ni845xSetIoVoltageLevel.argtypes = [NiHandle, uInt8]
-ni845x_dll.ni845xSetIoVoltageLevel.restype = int32
+    ni845x_dll.ni845xSetIoVoltageLevel.argtypes = [NiHandle, uInt8]
+    ni845x_dll.ni845xSetIoVoltageLevel.restype = int32
 
-# SPI Basic API
-ni845x_dll.ni845xSpiConfigurationOpen.argtypes = [pNiHandle]
-ni845x_dll.ni845xSpiConfigurationOpen.restype = int32
+    # SPI Basic API
+    ni845x_dll.ni845xSpiConfigurationOpen.argtypes = [pNiHandle]
+    ni845x_dll.ni845xSpiConfigurationOpen.restype = int32
 
-ni845x_dll.ni845xSpiConfigurationClose.argtypes = [NiHandle]
-ni845x_dll.ni845xSpiConfigurationClose.restype = int32
+    ni845x_dll.ni845xSpiConfigurationClose.argtypes = [NiHandle]
+    ni845x_dll.ni845xSpiConfigurationClose.restype = int32
 
-ni845x_dll.ni845xSpiConfigurationSetClockRate.argtypes = [NiHandle, uInt16]
-ni845x_dll.ni845xSpiConfigurationSetClockRate.restype = int32
+    ni845x_dll.ni845xSpiConfigurationSetClockRate.argtypes = [NiHandle, uInt16]
+    ni845x_dll.ni845xSpiConfigurationSetClockRate.restype = int32
 
-ni845x_dll.ni845xSpiConfigurationSetChipSelect.argtypes = [NiHandle, uInt32]
-ni845x_dll.ni845xSpiConfigurationSetChipSelect.restype = int32
+    ni845x_dll.ni845xSpiConfigurationSetChipSelect.argtypes = [NiHandle, uInt32]
+    ni845x_dll.ni845xSpiConfigurationSetChipSelect.restype = int32
 
-ni845x_dll.ni845xSpiConfigurationSetPort.argtypes = [NiHandle, uInt8]
-ni845x_dll.ni845xSpiConfigurationSetPort.restype = int32
+    ni845x_dll.ni845xSpiConfigurationSetPort.argtypes = [NiHandle, uInt8]
+    ni845x_dll.ni845xSpiConfigurationSetPort.restype = int32
 
-ni845x_dll.ni845xSpiConfigurationSetClockPolarity.argtypes = [NiHandle, int32]
-ni845x_dll.ni845xSpiConfigurationSetClockPolarity.restype = int32
+    ni845x_dll.ni845xSpiConfigurationSetClockPolarity.argtypes = [NiHandle, int32]
+    ni845x_dll.ni845xSpiConfigurationSetClockPolarity.restype = int32
 
-ni845x_dll.ni845xSpiConfigurationSetClockPhase.argtypes = [NiHandle, int32]
-ni845x_dll.ni845xSpiConfigurationSetClockPhase.restype = int32
+    ni845x_dll.ni845xSpiConfigurationSetClockPhase.argtypes = [NiHandle, int32]
+    ni845x_dll.ni845xSpiConfigurationSetClockPhase.restype = int32
 
-ni845x_dll.ni845xSpiConfigurationSetNumBitsPerSample.argtypes = [NiHandle, uInt16]
-ni845x_dll.ni845xSpiConfigurationSetNumBitsPerSample.restype = int32
+    ni845x_dll.ni845xSpiConfigurationSetNumBitsPerSample.argtypes = [NiHandle, uInt16]
+    ni845x_dll.ni845xSpiConfigurationSetNumBitsPerSample.restype = int32
 
-ni845x_dll.ni845xSpiWriteRead.argtypes = [NiHandle, NiHandle, uInt32, puInt8, puInt32, puInt8]
-ni845x_dll.ni845xSpiWriteRead.restype = int32
+    ni845x_dll.ni845xSpiWriteRead.argtypes = [NiHandle, NiHandle, uInt32, puInt8, puInt32, puInt8]
+    ni845x_dll.ni845xSpiWriteRead.restype = int32
 
-# DIO Functions
-ni845x_dll.ni845xDioSetPortLineDirectionMap.argtypes = [NiHandle, uInt8, uInt8]
-ni845x_dll.ni845xDioSetPortLineDirectionMap.restype = int32
+    # DIO Functions
+    ni845x_dll.ni845xDioSetPortLineDirectionMap.argtypes = [NiHandle, uInt8, uInt8]
+    ni845x_dll.ni845xDioSetPortLineDirectionMap.restype = int32
 
-ni845x_dll.ni845xDioWritePort.argtypes = [NiHandle, uInt8, uInt8]
-ni845x_dll.ni845xDioWritePort.restype = int32
+    ni845x_dll.ni845xDioWritePort.argtypes = [NiHandle, uInt8, uInt8]
+    ni845x_dll.ni845xDioWritePort.restype = int32
 
-ni845x_dll.ni845xDioReadPort.argtypes = [NiHandle, uInt8, puInt8]
-ni845x_dll.ni845xDioReadPort.restype = int32
+    ni845x_dll.ni845xDioReadPort.argtypes = [NiHandle, uInt8, puInt8]
+    ni845x_dll.ni845xDioReadPort.restype = int32
 
-# I2C Functions
-ni845x_dll.ni845xI2cConfigurationOpen.argtypes = [pNiHandle]
-ni845x_dll.ni845xI2cConfigurationOpen.restype = int32
+    # I2C Functions
+    ni845x_dll.ni845xI2cConfigurationOpen.argtypes = [pNiHandle]
+    ni845x_dll.ni845xI2cConfigurationOpen.restype = int32
 
-ni845x_dll.ni845xI2cConfigurationClose.argtypes = [NiHandle]
-ni845x_dll.ni845xI2cConfigurationClose.restype = int32
+    ni845x_dll.ni845xI2cConfigurationClose.argtypes = [NiHandle]
+    ni845x_dll.ni845xI2cConfigurationClose.restype = int32
 
-ni845x_dll.ni845xI2cWrite.argtypes = [NiHandle, NiHandle, uInt32, puInt8]
-ni845x_dll.ni845xI2cWrite.restype = int32
+    ni845x_dll.ni845xI2cWrite.argtypes = [NiHandle, NiHandle, uInt32, puInt8]
+    ni845x_dll.ni845xI2cWrite.restype = int32
 
-ni845x_dll.ni845xI2cRead.argtypes = [NiHandle, NiHandle, uInt32, puInt32, puInt8]
-ni845x_dll.ni845xI2cRead.restype = int32
+    ni845x_dll.ni845xI2cRead.argtypes = [NiHandle, NiHandle, uInt32, puInt32, puInt8]
+    ni845x_dll.ni845xI2cRead.restype = int32
 
-# ... Add other function prototypes as needed ...
+    # ... Add other function prototypes as needed ...
 
 # ==============================================================================
 # Object-Oriented Wrapper Classes
@@ -304,6 +307,9 @@ class Ni845x(_HandleManager):
         Args:
             resource_name (str): The resource name of the device (e.g., "USB-8451").
         """
+        if not _dll_loaded:
+            raise Ni845xError(-1, "Cannot open device: NI-845x driver not loaded.")
+
         self.resource_name = resource_name.encode('utf-8')
         handle = NiHandle()
         status = ni845x_dll.ni845xOpen(self.resource_name, ctypes.byref(handle))
@@ -325,6 +331,9 @@ class Ni845x(_HandleManager):
         Returns:
             list: A list of resource names for all found devices.
         """
+        if not _dll_loaded:
+            return [] # Return empty list if library is not loaded
+
         find_handle = NiHandle()
         num_found = uInt32()
         # Max buffer size for a resource name
@@ -457,6 +466,10 @@ class Ni845x(_HandleManager):
 # Example Usage
 # ==============================================================================
 if __name__ == '__main__':
+    if not _dll_loaded:
+        print("Cannot run example: NI-845x library not loaded.")
+        sys.exit(0)
+
     print("--- NI-845x Python Wrapper Example ---")
 
     try:
