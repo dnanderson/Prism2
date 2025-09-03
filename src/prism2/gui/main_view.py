@@ -54,15 +54,6 @@ class MainView(ctk.CTkFrame):
         )
         self.disconnect_button.grid(row=1, column=2, padx=10, pady=10)
 
-        # --- Bindings and Traces ---
-        # Update the combobox when the device list changes
-        self.view_model.device_list.trace_add("write", self._update_device_combobox)
-        # Update button states when connection status changes
-        self.view_model.is_connected.trace_add("write", self._update_widget_states)
-
-        # Set initial states
-        self._update_widget_states()
-
         # --- Create SPI Command Frame ---
         self.spi_frame = ctk.CTkFrame(self.controls_frame)
         self.spi_frame.grid(row=1, column=0, padx=10, pady=10, sticky="nsew")
@@ -110,9 +101,14 @@ class MainView(ctk.CTkFrame):
         )
         self.breakdown_textbox.grid(row=1, column=1, padx=10, pady=10, sticky="ew")
 
-        # --- Bindings and Traces for History & Breakdown ---
+        # --- Bindings and Traces ---
+        self.view_model.device_list.trace_add("write", self._update_device_combobox)
+        self.view_model.is_connected.trace_add("write", self._update_widget_states)
         self.view_model.command_history.trace_add("write", self._render_command_history)
         self.view_model.breakdown_text.trace_add("write", self._update_breakdown_view)
+
+        # Set initial states
+        self._update_widget_states()
 
 
     def _on_predefined_cmd_select(self, selected_command):

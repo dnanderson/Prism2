@@ -14,10 +14,10 @@ class MainViewModel:
 
         # --- State Variables ---
         # These are observable properties that the view can bind to.
-        self.device_list = ctk.Variable([])
+        self.device_list = ctk.Variable(value=[])
         self.selected_device = ctk.StringVar()
         self.is_connected = ctk.BooleanVar(value=False)
-        self.command_history = ctk.Variable([])
+        self.command_history = ctk.Variable(value=[])
         self.breakdown_text = ctk.StringVar()
 
         # --- Initial State ---
