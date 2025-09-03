@@ -19,7 +19,7 @@ import sys
 # Determine the DLL name based on the operating system
 # For simplicity, we assume 'ni845x.dll'. This might need adjustment
 # based on the actual DLL name and location on the system.
-_dll_name = 'ni845x.dll'
+_dll_name = 'Ni845x.dll'
 _dll_loaded = False
 ni845x_dll = None
 
