@@ -54,6 +54,15 @@ class MainView(ctk.CTkFrame):
         )
         self.disconnect_button.grid(row=1, column=2, padx=10, pady=10)
 
+        self.simulation_mode_checkbox = ctk.CTkCheckBox(
+            self.device_frame,
+            text="Simulation Mode",
+            variable=self.view_model.simulation_mode,
+            command=self.view_model.toggle_simulation_mode
+        )
+        self.simulation_mode_checkbox.grid(row=2, column=0, columnspan=3, padx=10, pady=10, sticky="w")
+
+
         # --- Create SPI Command Frame ---
         self.spi_frame = ctk.CTkFrame(self.controls_frame)
         self.spi_frame.grid(row=1, column=0, padx=10, pady=10, sticky="nsew")

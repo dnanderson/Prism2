@@ -1,6 +1,9 @@
 import customtkinter as ctk
 from ..hardware.handler import HardwareHandler
+from ..hardware.mock_handler import MockHardwareHandler
+from ..hardware.ni845x import _dll_loaded
 from ..protocol.parser import parse_hex_data
+
 
 class MainViewModel:
     def __init__(self):
@@ -10,17 +13,48 @@ class MainViewModel:
         This class holds the application's state and business logic, and it
         interacts with the hardware handler.
         """
-        self.hardware_handler = HardwareHandler()
+        self.hardware_handler = None
 
         # --- State Variables ---
         # These are observable properties that the view can bind to.
         self.device_list = ctk.Variable(value=[])
         self.selected_device = ctk.StringVar()
         self.is_connected = ctk.BooleanVar(value=False)
+        self.simulation_mode = ctk.BooleanVar(value=not _dll_loaded)
         self.command_history = ctk.Variable(value=[])
         self.breakdown_text = ctk.StringVar()
 
         # --- Initial State ---
+        self._update_hardware_handler()
+        self.refresh_devices()
+
+    def _update_hardware_handler(self):
+        """
+        Sets the hardware handler based on the current simulation mode.
+        """
+        if self.simulation_mode.get():
+            self.hardware_handler = MockHardwareHandler()
+        else:
+            self.hardware_handler = HardwareHandler()
+        print(f"Hardware handler set to: {type(self.hardware_handler).__name__}")
+
+    def toggle_simulation_mode(self):
+        """
+        Called when the user toggles the simulation mode checkbox.
+        Handles the logic of switching between real and mock hardware.
+        """
+        # If the user is trying to turn off simulation mode but the DLL is not loaded,
+        # prevent the change and revert the checkbox.
+        if not self.simulation_mode.get() and not _dll_loaded:
+            print("Warning: Ni845x.dll not found. Cannot disable simulation mode.")
+            self.simulation_mode.set(True)
+            return
+
+        # Disconnect from any device before changing the handler
+        if self.is_connected.get():
+            self.disconnect_device()
+
+        self._update_hardware_handler()
         self.refresh_devices()
 
     def refresh_devices(self):
